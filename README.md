@@ -1,15 +1,19 @@
 # 點對點路線編排工具（P2P Route Tool）
 
+倉庫：https://github.com/Dinis0404/p2p-route-tool
+
 Abilix SKCON9 競賽用工具：在地圖上點選站點排路線、用積木寫點對點／任務函式、
 一鍵匯出 **AbilixScratch 3.0 (.srhs)** 或 AbilixChart 3.0 (.chrts) 工程。
 
 ## 下載
-到 [Releases](../../releases) 下載最新 `點對點路線工具_vX.Y.Z.zip`，解壓後雙擊 `點對點路線工具.exe`。
+到 [Releases](https://github.com/Dinis0404/p2p-route-tool/releases) 下載最新
+`p2p-route-tool-vX.Y.Z.zip`，解壓後雙擊 `點對點路線工具.exe`。
 **免安裝 Python**，程式和資料（config／路線存檔／地圖）在同一資料夾。
 
 ## 更新
-程式內按「檢查更新」會查詢本倉庫的最新 Release，發現新版會引導下載。
-更新只需替換 exe 一個檔案，config 和路線存檔全部保留。
+程式內按「檢查更新」會查詢 `releases/latest` API（config.json 的 update.url），
+發現新版 tag 會引導到下載頁。更新只需替換 exe 一個檔案，
+config 和路線存檔全部保留。
 
 ## 功能
 - **地圖排路線**：黑白示意圖／現場照片雙檢視，點站點建立 `S → 07 → 03 → S` 路線，
@@ -39,10 +43,11 @@ python -m PyInstaller --onefile --windowed --icon=icon.ico --name=點對點路�
 
 ## 發佈新版本
 1. `route_builder.py` 開頭 `VERSION` 升版
-2. 重新打包 exe，組 release 資料夾並壓 zip
+2. 重新打包 exe，組 release 資料夾並壓 zip（**資產檔名用 ASCII**：`p2p-route-tool-vX.Y.Z.zip`）
 3. git commit + push，然後：
 ```bash
-gh release create v1.2.0 點對點路線工具_v1.2.0.zip --title "v1.2.0" --notes "更新內容"
+gh release create vX.Y.Z p2p-route-tool-vX.Y.Z.zip --title "vX.Y.Z" --notes "更新內容"
 ```
-（或用網頁 Releases → Draft a new release 上傳 zip）
-程式內「檢查更新」查詢 `releases/latest` API，tag 即版本號。
+（沒有 gh 就用網頁 Releases → Draft a new release 上傳，或 curl API）
+程式內「檢查更新」查詢 `https://api.github.com/repos/Dinis0404/p2p-route-tool/releases/latest`，
+tag 即版本號。
