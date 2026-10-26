@@ -1,0 +1,11 @@
+__pycache__/
+dist/
+build/
+*.spec
+route_save.json
+release/
+_vtest/
+_v_main.xml
+verify_pts.png
+map_bw - 複製.png
+*.log
