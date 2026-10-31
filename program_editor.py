@@ -201,6 +201,16 @@ class ProgramEditor(tk.Toplevel):
             self.blist.insert("end", "%2d. [延時] 擺放後啟動" % n); n += 1
             for _, name, desc in seq:
                 self.blist.insert("end", "%2d. 呼叫 %s　← %s" % (n, name, desc)); n += 1
+            fm = self.functions.get("func_main") or []
+            if not seq and fm:
+                self.blist.insert("end", "    ┈┈ 以下直接使用 func_main 內容 ┈┈")
+                for b in fm:
+                    self.blist.insert("end", "%2d. %s" % (n, ce.block_label(b))); n += 1
+                self.main_info.config(
+                    text="路線為空：func_main 的 %d 塊積木會直接作為主程序匯出\n"
+                         "排好路線後，主程序會改為呼叫 func_起站_to_終站 函式" % len(fm),
+                    fg=BLUE_DARK)
+                return
             self.blist.insert("end", "%2d. [顯示] 任務完成!" % n)
             if holes:
                 self.main_info.config(text="⚠ 路線有空位，對應呼叫已跳過；先回主視窗補齊路線",
@@ -434,6 +444,8 @@ class ProgramEditor(tk.Toplevel):
         msg = "已匯出：%s\n主流程呼叫 %d 個函式，共 %d 個函式定義" % (
             os.path.basename(path), len(report["calls"]),
             len(set(n for _, n, _ in report["calls"]) | set(self.functions)))
+        if report.get("main_inlined"):
+            msg += "\n\n路線為空：func_main 的積木已直接作為主程序內容匯出"
         if report["empty"]:
             msg += "\n\n以下函式尚未定義內容（已生成空函式，可在 AbilixScratch 補）：\n" \
                    + "\n".join(report["empty"])

@@ -267,6 +267,7 @@ def build_project(route, tasks_by_id, functions, prog_cfg):
     start_delay = prog_cfg.get("startDelay", 1)
 
     seq, holes = route_call_sequence(route, tasks_by_id)
+    report = {"calls": seq, "empty": [], "holes": holes, "main_inlined": False}
 
     # 收集所有被引用的函式名（路線需求 + 函式內部呼叫），路線需求在前
     ordered = []
@@ -301,6 +302,18 @@ def build_project(route, tasks_by_id, functions, prog_cfg):
                    "Note": dict(NOTE, value="擺放到位後啟動")})
     for _, name, desc in seq:
         main.add(2000, {"Note": dict(NOTE, value=desc)}, name=name)
+    # 路線為空且 func_main 有內容 → 直接作為主程序（與 .srhs 匯出一致）
+    if not seq:
+        fm = functions.get("func_main") or []
+        for b in fm:
+            if b["b"] == "call":
+                main.add(2000, {"Note": dict(NOTE)},
+                         name=b.get("p", {}).get("target", ""))
+            else:
+                ids_, info_ = block_to_iteminfo(b)
+                main.add(ids_, info_)
+        if fm:
+            report["main_inlined"] = True
     main.add(106, _display_lines("任務完成!"))
 
     pag = {"robotType": 111, "downloadName": "ProgramA.c", "name": "點對點主程序",
@@ -328,7 +341,8 @@ def build_project(route, tasks_by_id, functions, prog_cfg):
             "main_bColLineItem": False, "itemInfos": page.items, "id": idx + 2,
         })
 
-    report = {"calls": seq, "empty": empty, "holes": holes}
+    report = {"calls": seq, "empty": empty, "holes": holes,
+              "main_inlined": report.get("main_inlined", False)}
     return pag, report
 
 

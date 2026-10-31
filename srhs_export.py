@@ -164,7 +164,8 @@ def _func_blocks(blocks, ids, report):
 def build_project_xml(route, tasks_by_id, functions, prog_cfg):
     """→ (xml_string, report)"""
     ids = _Ids()
-    report = {"skipped": [], "empty": [], "calls": [], "holes": False}
+    report = {"skipped": [], "empty": [], "calls": [], "holes": False,
+              "main_inlined": False}
 
     seq, holes = ce.route_call_sequence(route, tasks_by_id)
     report["calls"] = seq
@@ -208,6 +209,12 @@ def build_project_xml(route, tasks_by_id, functions, prog_cfg):
                 % (ids.next(), _num_el(ids, "time", start_delay)))
     for _, name, _desc in seq:
         main.extend(_block("call", {"target": name}, ids, report))
+    # 路線為空（主程序沒有任何呼叫）且 func_main 有內容 → 直接作為主程序
+    if not seq:
+        fm = functions.get("func_main") or []
+        if fm:
+            main.extend(_func_blocks(fm, ids, report))
+            report["main_inlined"] = True
     main.append('<block type="printf_text" id="%s">'
                 '<field name="text">任務完成!</field></block>' % ids.next())
 
@@ -222,6 +229,14 @@ def build_project_xml(route, tasks_by_id, functions, prog_cfg):
         blocks = functions.get(fname, [])
         if not blocks:
             report["empty"].append(fname)
+        if fname == "func_main" and report.get("main_inlined"):
+            # 內容已放進主程序，函式定義保持空殼避免重複執行
+            parts.append('<block type="procedures_defnoreturn" id="%s" x="%d" y="%d">'
+                         '<field name="NAME">%s</field></block>'
+                         % (ids.next(),
+                            start_x + 700 + (idx % 3) * 420,
+                            start_y + (idx // 3) * 520, escape(fname)))
+            continue
         bx = start_x + 700 + (idx % 3) * 420
         by = start_y + (idx // 3) * 520
         inner = _chain(_func_blocks(blocks, ids, report))

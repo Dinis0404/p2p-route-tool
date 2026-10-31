@@ -20,7 +20,7 @@ import threading
 import tkinter as tk
 from functools import partial
 
-VERSION = "1.1.0"
+VERSION = "1.1.1"
 
 try:
     from ctypes import windll
